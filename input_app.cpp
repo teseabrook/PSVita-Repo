@@ -25,6 +25,10 @@ void InputApp::Init()
 	if (input_manager_ && input_manager_->touch_manager() && (input_manager_->touch_manager()->max_num_panels() > 0))
 		input_manager_->touch_manager()->EnablePanel(0);
 
+	sprite.set_position(platform_.width()*0.5f, platform_.height()*0.5f, 0.0f);
+	sprite.set_width(32.0f);
+	sprite.set_height(32.0f);
+
 	InitFont();
 }
 
@@ -57,6 +61,7 @@ void InputApp::Render()
 {
 	sprite_renderer_->Begin();
 	DrawHUD();
+	sprite_renderer_->DrawSprite(sprite);
 	sprite_renderer_->End();
 }
 void InputApp::InitFont()
@@ -105,9 +110,11 @@ void InputApp::ProcessTouchInput()
 			// if active touch id is -1, then we are not currently processing a touch
 			if (active_touch_id_ == -1)
 			{
+				gef::DebugOut("Touch = -1\n");
 				// check for the start of a new touch
 				if (touch->type == gef::TT_NEW)
 				{
+					gef::DebugOut("New touch\n");
 					active_touch_id_ = touch->id;
 
 					// do any processing for a new touch here
@@ -117,12 +124,20 @@ void InputApp::ProcessTouchInput()
 			}
 			else if (active_touch_id_ == touch->id)
 			{
+
+				gef::DebugOut("Touch\n");
 				// we are processing touch data with a matching id to the one we are looking for
 				if (touch->type == gef::TT_ACTIVE)
 				{
 					// update an active touch here
 					// we're just going to record the position of the touch
 					touch_position_ = touch->position;
+					if (IsInside(sprite, touch->position))
+					{
+						float x = touch->position.x;
+						float y = touch->position.y;
+						sprite.set_position(x, y, 0);
+					}
 				}
 				else if (touch->type == gef::TT_RELEASED)
 				{
@@ -130,10 +145,29 @@ void InputApp::ProcessTouchInput()
 					// perform any actions that need to happen when a touch is released here
 					// we're not doing anything here apart from resetting the active touch id
 					active_touch_id_ = -1;
+					gef::DebugOut("Released\n");
+					//sprite.set_colour(0xFF000000);
 				}
 			}
 		}
 	}
+}
+
+bool InputApp::IsInside(const gef::Sprite& sprite, const gef::Vector2& point)
+{
+	float spriteX1 = sprite.position().x();
+	float spriteX2 = spriteX1 + sprite.width();
+	float spriteY1 = sprite.position().y();
+	float spriteY2 = spriteY1 + sprite.height();
+
+	float pointX = point.x;
+	float pointY = point.y;
+
+	if (pointX < spriteX2 && pointX > spriteX1 && pointY > spriteY1 && pointY < spriteY2)
+	{
+		return true;
+	}
+	return false;
 }
 
 

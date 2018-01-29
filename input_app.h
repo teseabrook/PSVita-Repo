@@ -1,6 +1,7 @@
 #ifndef _INPUT_APP_H
 #define _INPUT_APP_H
 
+#include <graphics\sprite.h>
 #include <system/application.h>
 #include <maths/vector2.h>
 #include <input/touch_input_manager.h>
@@ -38,6 +39,10 @@ private:
 	gef::Vector2 touch_position_;
 
 	float fps_;
+
+	gef::Sprite sprite;
+
+	bool IsInside(const gef::Sprite& sprite, const gef::Vector2& point);
 };
 
 #endif // _INPUT_APP_H
